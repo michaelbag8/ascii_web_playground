@@ -7,14 +7,22 @@ import (
 	"net/http"
 	"os"
 	"text/template"
+	"strings"
 )
 
 type DataPage struct {
 	Title string
 	Items []string
 }
-var tmpl =template.Must(template.ParseFiles("templates/index.html"))
-	
+
+type Data struct {
+	Result string
+	Error  string
+}
+
+var tmpl = template.Must(template.ParseFiles("templates/index.html"))
+var tmplReverse = template.Must(template.ParseFiles("templates/reverse.html"))
+
 func handler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.Error(w, "Not Found", http.StatusNotFound)
@@ -28,6 +36,45 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Hello %s\n", name)
 	}
 
+}
+
+//hello   你好 >> 好你  olleh
+func reverseWord(str string) string {
+	runes := []rune(str)
+	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+		runes[i], runes[j] = runes[j], runes[i]
+	}
+	return string(runes)
+}
+
+//hello   你 好 >> olleh 好你 
+func reversEachWord(str string)string{
+	words := strings.Fields(str)
+	for i, word := range words{
+		words[i] = reverseWord(word)
+	}
+	return strings.Join(words, " ")
+}
+func reverseHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		tmplReverse.Execute(w, nil)
+	} else {
+		r.ParseForm()
+		word := r.FormValue("word")
+		if word == "" {
+			http.Error(w, "Field Is Empty", http.StatusBadRequest)
+			return
+		}
+		rev := reverseWord(word)
+
+		userInfo := Data{
+			Result: rev,
+			Error:  "Error",
+		}
+		if err := tmplReverse.Execute(w, userInfo); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
 }
 
 func echoHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,14 +103,14 @@ func bannerHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/list"{
+	if r.URL.Path != "/list" {
 		http.Error(w, "Wrong Path", http.StatusBadRequest)
 		return
 	}
-	
+
 	result := DataPage{
 		Title: "Banner Title",
-		Items: []string{"Apple","Mango","Guava", "Coconut"},
+		Items: []string{"Apple", "Mango", "Guava", "Coconut"},
 	}
 
 	err := tmpl.Execute(w, result)
@@ -82,6 +129,7 @@ func main() {
 	http.HandleFunc("GET /echo", echoHandler)
 	http.HandleFunc("GET /banner", bannerHandler)
 	http.HandleFunc("GET /list", listHandler)
+	http.HandleFunc("/reverse", reverseHandler)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":8080", nil)
