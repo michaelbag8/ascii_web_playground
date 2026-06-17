@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello From The Other Side</title>
+</head>
+<body>
+    <h1>Greeting</h1>
+     {{if .}}
+    <ul>
+        {{range .}}
+        <li>Hello {{.Name}}</li>
+        {{end}}
+    </ul>
+    {{else}}
+        <p>Hello Guest!</p>
+    {{end}}
+</body>
+</html>
