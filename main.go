@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"text/template"
@@ -12,7 +13,8 @@ type DataPage struct {
 	Title string
 	Items []string
 }
-
+var tmpl =template.Must(template.ParseFiles("templates/index.html"))
+	
 func handler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.Error(w, "Not Found", http.StatusNotFound)
@@ -54,23 +56,19 @@ func bannerHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/banner"{
+	if r.URL.Path != "/list"{
 		http.Error(w, "Wrong Path", http.StatusBadRequest)
 		return
 	}
-	tmpl, err := template.ParseFiles("templates/index.html")
-	if err != nil {
-		http.Error(w, "template error", http.StatusInternalServerError)
-		return
-	}
+	
 	result := DataPage{
 		Title: "Banner Title",
-		Items: []string{},
+		Items: []string{"Apple","Mango","Guava", "Coconut"},
 	}
 
-	err = tmpl.Execute(w, result)
+	err := tmpl.Execute(w, result)
 	if err != nil {
-		http.Error(w, "render error", http.StatusInternalServerError)
+		log.Println(w, "render error", err)
 	}
 }
 
