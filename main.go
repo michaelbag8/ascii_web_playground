@@ -129,10 +129,14 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	http.HandleFunc("GET /{$}", handler)
 	http.HandleFunc("GET /about", aboutHandler)
-	http.HandleFunc("GET /echo", echoHandler)
+	http.HandleFunc("/echo", echoHandler)
 	http.HandleFunc("GET /banner", bannerHandler)
 	http.HandleFunc("GET /list", listHandler)
 	http.HandleFunc("/reverse", reverseHandler)
+	http.HandleFunc("/books", bookHandler)
+	http.HandleFunc("/greet", greetHandler)
+	http.HandleFunc("/users", userHandler)
+	http.HandleFunc("POST /register", registerHandler)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":8080", nil)
