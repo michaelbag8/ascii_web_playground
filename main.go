@@ -62,7 +62,10 @@ func reverseHandler(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		word := r.FormValue("word")
 		if word == "" {
-			http.Error(w, "Field Is Empty\n", http.StatusBadRequest)
+			data := Data{Error: "Please enter a word."}
+			if err := tmplReverse.Execute(w, data); err!=nil{
+				log.Println(err)
+			}
 			return
 		}
 		rev := reverseWord(word)
