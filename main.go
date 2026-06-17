@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"text/template"
 	"strings"
+	"text/template"
 )
 
 type DataPage struct {
@@ -38,7 +38,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//hello   你好 >> 好你  olleh
+// hello   你好 >> 好你  olleh
 func reverseWord(str string) string {
 	runes := []rune(str)
 	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
@@ -47,32 +47,32 @@ func reverseWord(str string) string {
 	return string(runes)
 }
 
-//hello   你 好 >> olleh 好你 
-func reversEachWord(str string)string{
+// hello   你 好 >> olleh 好你
+func reversEachWord(str string) string {
 	words := strings.Fields(str)
-	for i, word := range words{
+	for i, word := range words {
 		words[i] = reverseWord(word)
 	}
 	return strings.Join(words, " ")
 }
 func reverseHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		tmplReverse.Execute(w, nil)
+		tmplReverse.Execute(w, Data{})
 	} else {
 		r.ParseForm()
 		word := r.FormValue("word")
 		if word == "" {
-			http.Error(w, "Field Is Empty", http.StatusBadRequest)
+			http.Error(w, "Field Is Empty\n", http.StatusBadRequest)
 			return
 		}
 		rev := reverseWord(word)
 
 		userInfo := Data{
 			Result: rev,
-			Error:  "Error",
+			Error:  "",
 		}
 		if err := tmplReverse.Execute(w, userInfo); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Println("error parsing file")
 		}
 	}
 }
