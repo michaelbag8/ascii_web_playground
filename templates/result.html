@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ascii Art Result</title>
+</head>
+<body>
+    {{if .Error}}
+        <p>{{.Error}}</p>
+    {{end}}
+    {{if .Result}}
+        <pre>{{.Result}}</pre>
+    {{end}}
+    <a href="/">Try again</a>
+</body>
+</html>
