@@ -1,6 +1,8 @@
 package main
 
 import (
+	"code/ascii"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -21,7 +23,8 @@ type Data struct {
 }
 
 var tmpl = template.Must(template.ParseFiles("templates/index.html"))
-var tmplReverse = template.Must(template.ParseFiles("templates/reverse.html"))
+var res = template.Must(template.ParseFiles("templates/result.html"))
+var tmplReverse = template.Must(template.ParseFiles("tem/reverse.html"))
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
@@ -126,6 +129,44 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "This is the about page")
 }
 
+type ArtData struct {
+	Result string
+	Error  string
+}
+
+func asciiHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		tmpl.Execute(w, ArtData{})
+	} else {
+		text := r.FormValue("input")
+		banner := r.FormValue("banner")
+		if text == "" || banner == "" {
+			http.Error(w, "fields are empty", http.StatusBadRequest)
+			return
+		}
+		
+		data, err := ascii.Render(text, banner)
+
+		if err != nil {
+			if errors.Is(err, ascii.ErrBannerNotFound) {
+				w.WriteHeader(http.StatusNotFound)
+				res.Execute(w, ArtData{Error: "banner not found"})
+				return
+			} else if errors.Is(err, ascii.ErrInvalidChar) {
+				w.WriteHeader(http.StatusBadRequest)
+				res.Execute(w, ArtData{Error: "invalid character"})
+				return
+			} else {
+				w.WriteHeader(http.StatusInternalServerError)
+				res.Execute(w, ArtData{Error: "internal server error"})
+				return
+			}
+
+		}
+		res.Execute(w, ArtData{Result: data})
+	}
+}
+
 func main() {
 	http.HandleFunc("GET /{$}", handler)
 	http.HandleFunc("GET /about", aboutHandler)
@@ -137,6 +178,8 @@ func main() {
 	http.HandleFunc("/greet", greetHandler)
 	http.HandleFunc("/users", userHandler)
 	http.HandleFunc("POST /register", registerHandler)
+	http.HandleFunc("GET /ascii-art", asciiHandler)
+	http.HandleFunc("POST /ascii-art", asciiHandler)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":8080", nil)

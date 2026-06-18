@@ -96,6 +96,6 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//json.NewEncoder(w).Encode(req)
-	fmt.Fprintf(w,"%s of %d have successfully registered\n",req.Name, req.Age)
+	fmt.Fprintf(w, "%s of %d have successfully registered\n", req.Name, req.Age)
 
 }
