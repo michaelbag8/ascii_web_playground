@@ -2,18 +2,25 @@ package ascii
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strings"
 )
 
-func LoadBanner(name string) (map[rune][]string, error){
+var (
+	ErrBannerNotFound = errors.New("banner not found")
+	ErrInvalidChar    = errors.New("invalid character")
+)
+
+func LoadBanner(name string) (map[rune][]string, error) {
 	data, err := os.ReadFile(name)
-	if err!=nil{
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, ErrBannerNotFound
+		}
 		return nil, err
 	}
 
-	if len(data) == 0{
+	if len(data) == 0 {
 		return nil, errors.New("File is empty")
 	}
 
@@ -23,25 +30,22 @@ func LoadBanner(name string) (map[rune][]string, error){
 	bannerMap := make(map[rune][]string)
 	charCode := ' '
 
-
-	for _, raw := range rawFile{
+	for _, raw := range rawFile {
 		lines := strings.Split(raw, "\n")
-		if len(lines)< 8{
+		if len(lines) < 8 {
 			return nil, errors.New("Lines are more than 8")
 		}
-		bannerMap[charCode]= lines[:8]
+		bannerMap[charCode] = lines[:8]
 		charCode++
 	}
-	return  bannerMap, nil
+	return bannerMap, nil
 }
 
-
-
-func RenderLines(input string, banner map[rune][]string) []string{
+func RenderLines(input string, banner map[rune][]string) []string {
 	var output []string
-	for row:=0; row < 8; row++{
+	for row := 0; row < 8; row++ {
 		var result strings.Builder
-		for _, ch := range input{
+		for _, ch := range input {
 			result.WriteString(banner[ch][row])
 		}
 		output = append(output, result.String())
@@ -49,31 +53,47 @@ func RenderLines(input string, banner map[rune][]string) []string{
 	return output
 }
 
-func GenerateArt(input string, banner map[rune][]string) string{
+func GenerateArt(input string, banner map[rune][]string) (string, error) {
 	var result strings.Builder
 	userInput := strings.Split(input, "\\n")
-	for i, lines := range userInput{
-		if lines == ""{
-			if i < len(userInput)-1{
+	for i, lines := range userInput {
+		if lines == "" {
+			if i < len(userInput)-1 {
 				result.WriteString("\n")
 			}
 			continue
 		}
 
-		for _, ch := range lines{
-			if ch < 32 || ch > 126{
-				fmt.Fprintln(os.Stderr, "Non ascii character", ch)
-				os.Exit(1)
+		for _, ch := range lines {
+			if ch < 32 || ch > 126 {
+				return "", ErrInvalidChar
 			}
 		}
 		row := RenderLines(input, banner)
-		for _, rows := range row{
+		for _, rows := range row {
 			result.WriteString(rows)
 			result.WriteString("\n")
 		}
-		if i < len(userInput)-1{
-				result.WriteString("\n")
-			}
+		if i < len(userInput)-1 {
+			result.WriteString("\n")
+		}
 	}
-	return result.String()
+	return result.String(), nil
+}
+
+func Render(text, bannerName string) (string, error) {
+
+	fontFile := "banners/" + bannerName + ".txt"
+
+	content, err := LoadBanner(fontFile)
+	if err != nil {
+		return "", err
+	}
+
+	data, err := GenerateArt(text, content)
+	if err != nil {
+		return "", err
+	}
+
+	return data, nil
 }
