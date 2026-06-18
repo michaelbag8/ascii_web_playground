@@ -63,7 +63,7 @@ func reverseHandler(w http.ResponseWriter, r *http.Request) {
 		word := r.FormValue("word")
 		if word == "" {
 			data := Data{Error: "Please enter a word."}
-			if err := tmplReverse.Execute(w, data); err!=nil{
+			if err := tmplReverse.Execute(w, data); err != nil {
 				log.Println(err)
 			}
 			return
