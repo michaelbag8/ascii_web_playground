@@ -1,0 +1,39 @@
+Exercise 1: The Method Inspector
+Goal
+Build a /method-inspector endpoint that reads the HTTP method of every incoming request and echoes it back in a descriptive sentence. No method should be rejected — this handler accepts everything and reports what it sees.
+ 
+Key Tasks
+●     Register a /method-inspector handler using http.HandleFunc.
+●     Read the request method using r.Method.
+●     Respond with a plain text message that includes the method name.
+○     GET request → "You made a GET request."
+○     POST request → "You made a POST request."
+○     Any other method → "You made a [METHOD] request."
+●     Do not hardcode each method with its own if/else branch — use the value of r.Method directly in your response string.
+
+Why this matters —
+In ascii-art-web your POST /ascii-art handler must distinguish incoming methods
+before doing any work. This exercise builds the muscle of reading r.Method
+cleanly and using it — not just checking it.
+
+
+Exercise 2: The Echo Chamber
+Goal
+Create an /echo endpoint that only accepts POST requests. When a client sends a POST with a body, read the entire body and send it straight back. The response must be exactly what was sent — nothing added, nothing removed.
+ 
+Key Tasks
+●     Reject any non-POST request with http.StatusMethodNotAllowed (405).
+●     Read the full request body using io.ReadAll(r.Body).
+●     Always defer r.Body.Close() immediately after checking for an error — not at the end of the function.
+●     If the body is completely empty (zero bytes), return a 400 Bad Request with the message "body cannot be empty".
+●     Write the body content back to w exactly as received.
+
+Think about —
+What does io.ReadAll return if the request has no body at all?
+Is len(body) == 0 the same as body == nil? Try both and see.
+What happens to r.Body if you read it twice without closing it? 
+
+Stretch — do this after the core task works
+●     Add a response header: Content-Type: text/plain before writing the body back.
+○     Use w.Header().Set("Content-Type", "text/plain") — and call it before w.Write().
+○     What happens if you call w.Header().Set() after w.Write()? Try it and explain what you observe.
