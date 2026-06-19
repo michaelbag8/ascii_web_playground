@@ -90,7 +90,10 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "error reading body", http.StatusInternalServerError)
 			return
 		}
-
+		if len(read) == 0{
+			http.Error(w, "body is empty", http.StatusBadRequest)
+			return
+		}
 		data := string(read)
 		fmt.Fprintln(w, data)
 
@@ -166,6 +169,9 @@ func asciiHandler(w http.ResponseWriter, r *http.Request) {
 		res.Execute(w, ArtData{Result: data})
 	}
 }
+
+
+
 
 func main() {
 	http.HandleFunc("GET /{$}", handler)
