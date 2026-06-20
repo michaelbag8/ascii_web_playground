@@ -34,6 +34,10 @@ func bookHandler(w http.ResponseWriter, r *http.Request) {
 			Title:  "Great To Good",
 			Author: "Stephen Covey",
 		},
+		{
+			Title:  "Think and Grow Rich",
+			Author: "Napoleon Hill",
+		},
 	}
 	if err := temp.Execute(w, books); err != nil {
 		log.Println("error reading books")
