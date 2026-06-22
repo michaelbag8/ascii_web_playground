@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"text/template"
+	"time"
 )
 
 type DataPage struct {
@@ -90,7 +91,7 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "error reading body", http.StatusInternalServerError)
 			return
 		}
-		if len(read) == 0{
+		if len(read) == 0 {
 			http.Error(w, "body is empty", http.StatusBadRequest)
 			return
 		}
@@ -147,7 +148,7 @@ func asciiHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "fields are empty", http.StatusBadRequest)
 			return
 		}
-		
+
 		data, err := ascii.Render(text, banner)
 
 		if err != nil {
@@ -170,23 +171,29 @@ func asciiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
-
+func withLogging(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        start := time.Now()
+        next.ServeHTTP(w, r)
+        log.Printf("%s %s %v", r.Method, r.URL.Path, time.Since(start))
+    })
+}
 
 func main() {
-	http.HandleFunc("GET /{$}", handler)
-	http.HandleFunc("GET /about", aboutHandler)
-	http.HandleFunc("/echo", echoHandler)
-	http.HandleFunc("GET /banner", bannerHandler)
-	http.HandleFunc("GET /list", listHandler)
-	http.HandleFunc("/reverse", reverseHandler)
-	http.HandleFunc("/books", bookHandler)
-	http.HandleFunc("/greet", greetHandler)
-	http.HandleFunc("/users", userHandler)
-	http.HandleFunc("POST /register", registerHandler)
-	http.HandleFunc("GET /ascii-art", asciiHandler)
-	http.HandleFunc("POST /ascii-art", asciiHandler)
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /{$}", handler)
+	mux.HandleFunc("GET /about", aboutHandler)
+	mux.HandleFunc("/echo", echoHandler)
+	mux.HandleFunc("GET /banner", bannerHandler)
+	mux.HandleFunc("GET /list", listHandler)
+	mux.HandleFunc("/reverse", reverseHandler)
+	mux.HandleFunc("/books", bookHandler)
+	mux.HandleFunc("/greet", greetHandler)
+	mux.HandleFunc("/users", userHandler)
+	mux.HandleFunc("POST /register", registerHandler)
+	mux.HandleFunc("GET /ascii-art", asciiHandler)
+	mux.HandleFunc("POST /ascii-art", asciiHandler)
 
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	http.ListenAndServe(":8080", nil)
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	http.ListenAndServe(":8080", withLogging(mux))
 }
