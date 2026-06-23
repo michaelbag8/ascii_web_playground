@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func methodHandler(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +58,22 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method is not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	r.ParseForm()
+
+	contentType := r.Header.Get("Content-Type")
+	// if contentType != "application/x-www-form-urlencoded"{
+	// 	http.Error(w, "Content-Type is not application/x-www-form-urlencoded", http.StatusUnsupportedMediaType)
+	// 	return
+	// }
+	if !strings.HasPrefix(contentType, "application/x-www-form-urlencoded"){
+		http.Error(w, "Content-Type is not application/x-www-form-urlencoded", http.StatusUnsupportedMediaType)
+		return
+	}
+
+	err := r.ParseForm()
+	if err !=nil{
+		http.Error(w, "form parsing failed", http.StatusInternalServerError)
+		return
+	}
 	username := r.FormValue("username")
 	language := r.FormValue("language")
 
