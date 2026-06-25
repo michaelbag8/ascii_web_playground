@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 )
 type Page struct{
@@ -161,12 +162,35 @@ func infoHandler(w http.ResponseWriter, r *http.Request){
 	fmt.Fprintln(w, "data info endpoint reached")
 }
 
+func statusHandle(w http.ResponseWriter, r *http.Request){
+	codeStr := r.URL.Query().Get("code")
+
+	if codeStr == ""{
+		http.Error(w, "code is missing", http.StatusBadRequest)
+		return
+	}
+	code, err := strconv.Atoi(codeStr)
+	if err!=nil{
+		http.Error(w, "not a number", http.StatusBadRequest)
+		return
+	}
+
+	if code < 100 || code > 900{
+		http.Error(w, "code out of range", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Fprintf(w, "%d %s\n", code, http.StatusText(code))
+	
+}
+
 
 func main() {
 	http.HandleFunc("/method-inspector", methodHandler)
 	http.HandleFunc("/validate-body", validatehandler)
 	http.HandleFunc("/query-firewall", firewallHandler)
 	http.HandleFunc("/form", formHandler)
+	http.HandleFunc("/status", statusHandle)
 	
 	/*
 	mainMux := http.NewServeMux()
