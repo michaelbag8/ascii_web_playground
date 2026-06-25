@@ -175,11 +175,16 @@ func statusHandle(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	if code < 100 || code > 900{
+	
+	if code < 100 || code > 599{
 		http.Error(w, "code out of range", http.StatusBadRequest)
 		return
 	}
 
+	if code >=500 && code <= 599{
+		w.Header().Set("X-Server-Alert","true")
+	}
+	w.WriteHeader(code)
 	fmt.Fprintf(w, "%d %s\n", code, http.StatusText(code))
 	
 }
