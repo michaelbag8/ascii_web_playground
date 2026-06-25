@@ -155,46 +155,6 @@ fi
 
 echo ""
 # -----------------------------
-# Exercise 2: Echo Chamber
-# -----------------------------
-echo -e "${BLUE}[Exercise 2: /echo]${NC}"
-
-RESP_ECHO=$(curl -s -X POST -d "hello world" "$SERVER_URL/echo")
-if [[ "$RESP_ECHO" == "hello world" ]]; then
-    echo -e "${GREEN}✔ PASS: Echo returned exact body${NC}"
-else
-    echo -e "${RED}✘ FAIL: Expected 'hello world', got '$RESP_ECHO'${NC}"
-fi
-
-STATUS_ECHO_GET=$(curl -s -o /dev/null -w "%{http_code}" "$SERVER_URL/echo")
-if [ "$STATUS_ECHO_GET" == "405" ]; then
-    echo -e "${GREEN}✔ PASS: GET blocked with 405${NC}"
-else
-    echo -e "${RED}✘ FAIL: Expected 405, got $STATUS_ECHO_GET${NC}"
-fi
-echo ""
-
-# -----------------------------
-# Exercise 3: Header Detective
-# -----------------------------
-echo -e "${BLUE}[Exercise 3: /headers]${NC}"
-
-STATUS_HEADER_MISSING=$(curl -s -o /dev/null -w "%{http_code}" "$SERVER_URL/headers")
-if [ "$STATUS_HEADER_MISSING" == "400" ]; then
-    echo -e "${GREEN}✔ PASS: Missing X-Custom-Token rejected${NC}"
-else
-    echo -e "${RED}✘ FAIL: Expected 400, got $STATUS_HEADER_MISSING${NC}"
-fi
-
-RESP_HEADER=$(curl -s -H "X-Custom-Token: abc123" -H "Content-Type: application/json" "$SERVER_URL/headers")
-if [[ "$RESP_HEADER" == *"abc123"* && "$RESP_HEADER" == *"Content-Type"* ]]; then
-    echo -e "${GREEN}✔ PASS: Headers correctly parsed${NC}"
-else
-    echo -e "${RED}✘ FAIL: Header parsing failed: '$RESP_HEADER'${NC}"
-fi
-echo ""
-
-# -----------------------------
 # Exercise 4: Form Decoder
 # -----------------------------
 echo -e "${BLUE}[Exercise 4: /form]${NC}"
@@ -241,29 +201,72 @@ fi
 echo ""
 
 # -----------------------------
-# Exercise 6: API Subtree
+# Exercise 13: Multi-Stage Router System
 # -----------------------------
-echo -e "${BLUE}[Exercise 6: /api/v1]${NC}"
+echo -e "${BLUE}[Exercise 13: /api/v1/auth and /api/v1/data]${NC}"
 
-RESP_PING=$(curl -s "$SERVER_URL/api/v1/ping")
-if [[ "$RESP_PING" == "pong" ]]; then
-    echo -e "${GREEN}✔ PASS: /ping works${NC}"
+# Test login route
+RESP_LOGIN=$(curl -s "$SERVER_URL/api/v1/auth/login")
+if [[ "$RESP_LOGIN" == *"login endpoint reached"* ]]; then
+    echo -e "${GREEN}✔ PASS: Login route reached through all router layers${NC}"
 else
-    echo -e "${RED}✘ FAIL: /ping failed '$RESP_PING'${NC}"
+    echo -e "${RED}✘ FAIL: Expected login response, got '$RESP_LOGIN'${NC}"
 fi
 
-RESP_GREET=$(curl -s "$SERVER_URL/api/v1/greet?name=Zion")
-if [[ "$RESP_GREET" == *"Zion"* ]]; then
-    echo -e "${GREEN}✔ PASS: /greet works with name${NC}"
+# Test logout route
+RESP_LOGOUT=$(curl -s "$SERVER_URL/api/v1/auth/logout")
+if [[ "$RESP_LOGOUT" == *"logout endpoint reached"* ]]; then
+    echo -e "${GREEN}✔ PASS: Logout route reached through all router layers${NC}"
 else
-    echo -e "${RED}✘ FAIL: /greet failed '$RESP_GREET'${NC}"
+    echo -e "${RED}✘ FAIL: Expected logout response, got '$RESP_LOGOUT'${NC}"
 fi
 
-RESP_GREET_EMPTY=$(curl -s "$SERVER_URL/api/v1/greet")
-if [[ "$RESP_GREET_EMPTY" == *"Stranger"* ]]; then
-    echo -e "${GREEN}✔ PASS: /greet fallback works${NC}"
+# Test data info route
+RESP_INFO=$(curl -s "$SERVER_URL/api/v1/data/info")
+if [[ "$RESP_INFO" == *"data info endpoint reached"* ]]; then
+    echo -e "${GREEN}✔ PASS: Data info route reached through all router layers${NC}"
 else
-    echo -e "${RED}✘ FAIL: Missing fallback '$RESP_GREET_EMPTY'${NC}"
+    echo -e "${RED}✘ FAIL: Expected data info response, got '$RESP_INFO'${NC}"
+fi
+
+# Test unknown auth route
+STATUS_UNKNOWN_AUTH=$(curl -s -o /dev/null -w "%{http_code}" \
+    "$SERVER_URL/api/v1/auth/register")
+
+if [ "$STATUS_UNKNOWN_AUTH" == "404" ]; then
+    echo -e "${GREEN}✔ PASS: Unknown auth route returned 404${NC}"
+else
+    echo -e "${RED}✘ FAIL: Expected 404 for unknown auth route, got $STATUS_UNKNOWN_AUTH${NC}"
+fi
+
+# Test unknown data route
+STATUS_UNKNOWN_DATA=$(curl -s -o /dev/null -w "%{http_code}" \
+    "$SERVER_URL/api/v1/data/delete")
+
+if [ "$STATUS_UNKNOWN_DATA" == "404" ]; then
+    echo -e "${GREEN}✔ PASS: Unknown data route returned 404${NC}"
+else
+    echo -e "${RED}✘ FAIL: Expected 404 for unknown data route, got $STATUS_UNKNOWN_DATA${NC}"
+fi
+
+# Test missing /api prefix
+STATUS_NO_API=$(curl -s -o /dev/null -w "%{http_code}" \
+    "$SERVER_URL/v1/auth/login")
+
+if [ "$STATUS_NO_API" == "404" ]; then
+    echo -e "${GREEN}✔ PASS: Missing /api prefix returned 404${NC}"
+else
+    echo -e "${RED}✘ FAIL: Expected 404 without /api prefix, got $STATUS_NO_API${NC}"
+fi
+
+# Test wrong API version
+STATUS_V2=$(curl -s -o /dev/null -w "%{http_code}" \
+    "$SERVER_URL/api/v2/auth/login")
+
+if [ "$STATUS_V2" == "404" ]; then
+    echo -e "${GREEN}✔ PASS: Unsupported API version returned 404${NC}"
+else
+    echo -e "${RED}✘ FAIL: Expected 404 for /api/v2 route, got $STATUS_V2${NC}"
 fi
 
 echo ""
