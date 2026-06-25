@@ -1,12 +1,16 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 )
-
+type Page struct{
+	Username string
+	Language string
+}
 // switch, if, and map
 func secureHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -99,8 +103,6 @@ func firewallHandler(w http.ResponseWriter, r *http.Request){
 	user :=r.URL.Query().Get("user")
 	role :=r.URL.Query().Get("role")
 
-	
-	
 	if user == ""{
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "user parameter missing")
@@ -121,10 +123,40 @@ func firewallHandler(w http.ResponseWriter, r *http.Request){
 	fmt.Fprintf(w, "User: %s, Role: %s", user, role)
 }
 
+func formHandler(w http.ResponseWriter, r *http.Request){
+	if r.Method != http.MethodPost{
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	contentType := r.Header.Get("Content-Type")
+
+	if contentType!="application/json"{
+		http.Error(w, "Only JSON is accepted", http.StatusUnsupportedMediaType)
+		return
+	}
+	var req Page
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err!=nil{
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if req.Username == "" || req.Language == ""{
+		http.Error(w, "fields cannot be empty", http.StatusBadRequest)
+		return
+	}
+
+
+	fmt.Fprintf(w,"Hello %s, %s is awesome!", req.Username, req.Language)
+}
+
+
 func main() {
 	http.HandleFunc("/method-inspector", methodHandler)
 	http.HandleFunc("/validate-body", validatehandler)
 	http.HandleFunc("/query-firewall", firewallHandler)
+	http.HandleFunc("/form", formHandler)
 
 	fmt.Println("Server is running at port 8080")
 	http.ListenAndServe(":8080", nil)
