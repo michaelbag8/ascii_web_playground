@@ -151,15 +151,39 @@ func formHandler(w http.ResponseWriter, r *http.Request){
 	fmt.Fprintf(w,"Hello %s, %s is awesome!", req.Username, req.Language)
 }
 
+func loginHandler(w http.ResponseWriter, r *http.Request){
+	fmt.Fprintln(w, "login endpoint reached")
+}
+func logoutHandler(w http.ResponseWriter, r *http.Request){
+	fmt.Fprintln(w, "logout endpoint reached")
+}
+func infoHandler(w http.ResponseWriter, r *http.Request){
+	fmt.Fprintln(w, "data info endpoint reached")
+}
+
 
 func main() {
 	http.HandleFunc("/method-inspector", methodHandler)
 	http.HandleFunc("/validate-body", validatehandler)
 	http.HandleFunc("/query-firewall", firewallHandler)
 	http.HandleFunc("/form", formHandler)
+	
+	/*
+	mainMux := http.NewServeMux()
+	apiMux:= http.NewServeMux()
+	
+	apiMux.HandleFunc("/v1/auth/login", loginHandler)
+	apiMux.HandleFunc("/v1/auth/logout", logoutHandler)
+	apiMux.HandleFunc("/v1/data/info", infoHandler)
+
+	mainMux.Handle("/api/", http.StripPrefix("/api", apiMux))
+
+	http.ListenAndServe(":8080", mainMux)
+	*/
 
 	fmt.Println("Server is running at port 8080")
 	http.ListenAndServe(":8080", nil)
+
 
 }
 
