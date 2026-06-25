@@ -199,8 +199,10 @@ echo ""
 # -----------------------------
 echo -e "${BLUE}[Exercise 4: /form]${NC}"
 
-RESP_FORM=$(curl -s -X POST -H "Content-Type: application/x-www-form-urlencoded" \
-    -d "username=Alice&language=Go" "$SERVER_URL/form")
+RESP_FORM=$(curl -s -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"username":"Alice","language":"Go"}' \
+    "$SERVER_URL/form")
 
 if [[ "$RESP_FORM" == *"Alice"* && "$RESP_FORM" == *"Go"* ]]; then
     echo -e "${GREEN}✔ PASS: Form parsed successfully${NC}"
