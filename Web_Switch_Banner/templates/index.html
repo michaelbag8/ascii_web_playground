@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ascii-Art-Web</title>
+</head>
+
+<body>
+    <h1>ASCII Art Generator</h1>
+
+    {{if not .Result}}
+    <form action="/ascii-art" method="post">
+            <textarea name="text">{{.Text}}</textarea>
+            <select name="banner">
+                <option value="standard"  >standard</option>
+                <option value="shadow"    >shadow</option>
+                <option value="thinkertoy">thinkertoy</option>
+            </select>
+        <input type="submit" value="Generate Art">
+    </form>
+    {{end}}
+
+    {{if .Result}}
+    <pre>{{.Result}}</pre>
+
+    <p>Switch Banner Style:</p>
+    <a href="/ascii-art-switch?text={{.Text}}&banner=standard">standard</a>
+    <a href="/ascii-art-switch?text={{.Text}}&banner=shadow">shadow</a>
+    <a href="/ascii-art-switch?text={{.Text}}&banner=thinkertoy">thinkertoy</a>
+
+    <br><br>
+    <a href="/">Home</a>
+    {{end}}
+</body>
+
+</html>
