@@ -14,6 +14,7 @@ func LoadBanner(filename string) (map[rune][]string, error) {
 	}
 
 	content := strings.ReplaceAll(string(data), "\r\n", "\n")
+	content = strings.TrimLeft(content, "\n")
 	rawFile := strings.Split(content, "\n\n")
 
 	bannerMap := make(map[rune][]string)
