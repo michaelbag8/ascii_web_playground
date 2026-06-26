@@ -14,9 +14,9 @@
     <form action="/ascii-art" method="post">
             <textarea name="text">{{.Text}}</textarea>
             <select name="banner">
-                <option value="standard"  >standard</option>
-                <option value="shadow"    >shadow</option>
-                <option value="thinkertoy">thinkertoy</option>
+                <option value="standard"  >Standard</option>
+                <option value="shadow"    >Shadow</option>
+                <option value="thinkertoy">Thinkertoy</option>
             </select>
         <input type="submit" value="Generate Art">
     </form>
@@ -25,12 +25,11 @@
     {{if .Result}}
     <pre>{{.Result}}</pre>
 
-    <p>Switch Banner Style:</p>
-    <a href="/ascii-art-switch?text={{.Text}}&banner=standard">standard</a>
-    <a href="/ascii-art-switch?text={{.Text}}&banner=shadow">shadow</a>
-    <a href="/ascii-art-switch?text={{.Text}}&banner=thinkertoy">thinkertoy</a>
-
-    <br><br>
+    <span>Switch Banner:</span>
+    <a href="/ascii-art-switch?text={{.Text}}&banner=standard">Standard</a>
+    <a href="/ascii-art-switch?text={{.Text}}&banner=shadow">Shadow</a>
+    <a href="/ascii-art-switch?text={{.Text}}&banner=thinkertoy">Thinkertoy</a>
+    <br>
     <a href="/">Home</a>
     {{end}}
 </body>
