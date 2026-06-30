@@ -10,7 +10,6 @@ type PageData struct {
 	Banner string
 	Text   string
 }
-
 var templ = template.Must(template.ParseFiles("templates/index.html"))
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
