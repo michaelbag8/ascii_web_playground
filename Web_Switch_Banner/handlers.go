@@ -39,15 +39,9 @@ func handleAsciiArt(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, ch := range text {
-        if ch < 32 || ch > 126 {
-            http.Error(w, "non ASCII character detected", http.StatusBadRequest)
-            return
-        }
-    }
-
 	if banner == "" {
-		banner = "standard"
+		http.Error(w, "banner field is empty", http.StatusNotFound)
+		return
 	}
 
 	bannerFile := "banners/" + banner + ".txt"
@@ -79,15 +73,10 @@ func handleSwitch(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "text field is empty", http.StatusBadRequest)
 		return
 	}
-	for _, ch := range text {
-        if ch < 32 || ch > 126 {
-            http.Error(w, "non ASCII character detected", http.StatusBadRequest)
-            return
-        }
-    }
-	
+
 	if banner == "" {
-		banner = "standard"
+		http.Error(w, "banner field is empty", http.StatusNotFound)
+		return
 	}
 
 	bannerFile := "banners/" + banner + ".txt"
