@@ -10,7 +10,6 @@ type PageData struct {
 	Banner string
 	Text   string
 }
-
 var templ = template.Must(template.ParseFiles("templates/index.html"))
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
@@ -38,12 +37,10 @@ func handleAsciiArt(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "text field is empty", http.StatusBadRequest)
 		return
 	}
-
 	if banner == "" {
 		http.Error(w, "banner field is empty", http.StatusNotFound)
 		return
 	}
-
 	bannerFile := "banners/" + banner + ".txt"
 	data, err := LoadBanner(bannerFile)
 	if err != nil {
@@ -73,7 +70,7 @@ func handleSwitch(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "text field is empty", http.StatusBadRequest)
 		return
 	}
-
+	
 	if banner == "" {
 		http.Error(w, "banner field is empty", http.StatusNotFound)
 		return
