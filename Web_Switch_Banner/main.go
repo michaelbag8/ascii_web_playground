@@ -59,7 +59,7 @@ func GenerateArt(input string, banner map[rune][]string) string {
 			result.WriteString(row)
 			result.WriteString("\n")
 		}
-		
+
 	}
 	return result.String()
 }
