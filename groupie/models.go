@@ -6,10 +6,11 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"text/template"
 )
 
-//Knowledge Gap - Go template, nested struct and json
+// Knowledge Gap - Go template, nested struct and json
 type Artist struct {
 	ID           int      `json:"id"`
 	Name         string   `json:"name"`
@@ -102,7 +103,7 @@ func ArtistHandler(w http.ResponseWriter, r *http.Request) {
 	found := false
 	for _, artist := range artists {
 		if artist.ID == id {
-			found= true
+			found = true
 			err = templ.Execute(w, artist)
 			if err != nil {
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -110,14 +111,41 @@ func ArtistHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	if !found{
+	if !found {
 		http.Error(w, "Not Found", http.StatusNotFound)
 		return
 	}
 }
 
+func SearchHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	q := r.URL.Query().Get("q")
 
+	var result []Artist
 
+	templ, err := template.ParseFiles("templates/index.html")
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	for _, artist := range artists {
+		if strings.Contains(strings.ToLower(artist.Name), strings.ToLower(q)) {
+
+			result = append(result, artist)
+
+		}
+	}
+
+	err = templ.Execute(w, result)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
 
 func main() {
 	err := fetchData("https://groupietrackers.herokuapp.com/api/artists", &artists)
@@ -138,6 +166,7 @@ func main() {
 	}
 	http.HandleFunc("/", HomeHandler)
 	http.HandleFunc("/artist", ArtistHandler)
+	http.HandleFunc("/search", SearchHandler)
 	fmt.Println("server is running at port http://localhost:8080/")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
