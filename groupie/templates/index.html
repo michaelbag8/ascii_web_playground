@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Groupie Tracker</title>
+</head>
+
+<body>
+    <h1>Artists</h1>
+    <div class="artists">
+        {{range .}}
+        <div class="card">With:{{.Name}}
+            <img src="{{.Image}}" alt="{{.Name}}">
+            <a href="/artist?id={{.ID}}">
+                <h2>{{.Name}}</h2>
+            </a>
+        </div>
+        {{end}}
+    </div>
+</body>
+
+</html>

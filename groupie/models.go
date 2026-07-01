@@ -1,5 +1,15 @@
 package main
 
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"strconv"
+	"text/template"
+)
+
+//Knowledge Gap - Go template, nested struct and json
 type Artist struct {
 	ID           int      `json:"id"`
 	Name         string   `json:"name"`
@@ -29,12 +39,105 @@ type Date struct {
 	Dates []string `json:"dates"`
 }
 
-
 type Relation struct {
-	ID    int `json:"id"`
+	ID             int                 `json:"id"`
 	DatesLocations map[string][]string `json:"datesLocations"`
 }
 
-type Relations struct{
+type Relations struct {
 	Index []Relation `json:"index"`
+}
+
+var artists []Artist
+var locations Locations
+var dates Dates
+var relations Relations
+
+func fetchData(url string, target any) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(target)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.Error(w, "404 Not Found", http.StatusNotFound)
+		return
+	}
+	templ, err := template.ParseFiles("templates/index.html")
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = templ.Execute(w, artists)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+
+func ArtistHandler(w http.ResponseWriter, r *http.Request) {
+	param := r.URL.Query().Get("id")
+
+	id, err := strconv.Atoi(param)
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	templ, err := template.ParseFiles("templates/artist.html")
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	found := false
+	for _, artist := range artists {
+		if artist.ID == id {
+			found= true
+			err = templ.Execute(w, artist)
+			if err != nil {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+		}
+	}
+	if !found{
+		http.Error(w, "Not Found", http.StatusNotFound)
+		return
+	}
+}
+
+
+
+
+func main() {
+	err := fetchData("https://groupietrackers.herokuapp.com/api/artists", &artists)
+	if err != nil {
+		log.Fatal("error fetching artists", err)
+	}
+	err = fetchData("https://groupietrackers.herokuapp.com/api/locations", &locations)
+	if err != nil {
+		log.Fatal("error fetching loactions", err)
+	}
+	err = fetchData("https://groupietrackers.herokuapp.com/api/dates", &dates)
+	if err != nil {
+		log.Fatal("error fetching dates", err)
+	}
+	err = fetchData("https://groupietrackers.herokuapp.com/api/relation", &relations)
+	if err != nil {
+		log.Fatal("error fetching relation", err)
+	}
+	http.HandleFunc("/", HomeHandler)
+	http.HandleFunc("/artist", ArtistHandler)
+	fmt.Println("server is running at port http://localhost:8080/")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
