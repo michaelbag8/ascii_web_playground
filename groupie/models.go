@@ -146,6 +146,46 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+/*
+func artistDetail(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "id parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	idC, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	var foundArtist *Artist
+
+	for _, artist := range artists {
+		if artist.ID == idC {
+			foundArtist = &artist
+			break
+		}
+	}
+
+	if foundArtist == nil {
+		http.Error(w, "artist not found", http.StatusNotFound)
+		return
+	}
+
+	temps, err := template.ParseFiles("artist.html")
+	if err != nil {
+		http.Error(w, "template error", http.StatusInternalServerError)
+		return
+	}
+
+	err = temps.Execute(w, foundArtist)
+	if err != nil {
+		http.Error(w, "render error", http.StatusInternalServerError)
+	}
+}
+*/
 
 func main() {
 	err := fetchData("https://groupietrackers.herokuapp.com/api/artists", &artists)
