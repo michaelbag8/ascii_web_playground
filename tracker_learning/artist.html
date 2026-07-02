@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Artist Details</title>
+</head>
+<body>
+
+    <h1>{{.Name}}</h1>
+
+    <img src="{{.Image}}" alt="{{.Name}}" style="width:300px;height:auto;">
+
+    <p><strong>Created:</strong> {{.CreationDate}}</p>
+    <p><strong>First Album:</strong> {{.FirstAlbum}}</p>
+
+    <h3>Members</h3>
+    <ul>
+        {{range .Members}}
+            <li>{{.}}</li>
+        {{end}}
+    </ul>
+
+</body>
+</html>
