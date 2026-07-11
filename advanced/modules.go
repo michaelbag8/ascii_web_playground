@@ -1,6 +1,9 @@
 package main
 
-// import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func Reverse(str string) string{
 	reverse := ""
@@ -16,10 +19,19 @@ func ReverseString(str string) string{
 	}
 	return string(runes)
 }
-// func main() {
-// 	word := "hello world"
-// 	fmt.Println(Reverse(word))
 
-// 	fmt.Println("-----------")
-// 	fmt.Println(ReverseString(word))
-// }
+func reverseEachWord(str string) string{
+	words := strings.Fields(str)
+	for i, word := range words{
+		words[i] = ReverseString(word)
+	}
+	return strings.Join(words, " ")
+}
+
+func main() {
+	word := "hello world"
+	fmt.Println(Reverse(word))
+
+	fmt.Println("-----------")
+	fmt.Println(reverseEachWord(word))
+}
