@@ -36,6 +36,24 @@ func swap(a,b *int) (*int, *int){
 	return a, b
 }
 
+func double(n int)int {
+	n = n * 2
+	return n
+}
+
+func doubleByPointer(n *int)int {
+	*n = *n * 2
+	return *n
+}
+
+func applyDiscount(price *float64, percent float64) float64{
+	discount := *price * (percent / 100)
+	*price = *price - discount
+
+	return *price
+}
+
+
 func main() {
 	word := "hello world"
 	fmt.Println(Reverse(word))
@@ -46,6 +64,26 @@ func main() {
 	a := 5
 	b := 3
 	c , d := swap(&a, &b)
-
 	fmt.Println(*c,*d)
+
+	val := 40
+	fmt.Println(double(val))
+	fmt.Println("--------------")
+	fmt.Println(val)
+
+
+	value := 30
+	fmt.Println(doubleByPointer(&value))
+	fmt.Println("---------")
+	fmt.Println(value)
+
+
+	price := 1000.0
+	//p := &price
+	percent := 20.0
+	fmt.Println("-----Discounted Price----")
+	final := applyDiscount(&price, percent)
+	fmt.Println(final)
+	fmt.Println("----original price---")
+	fmt.Println(price)
 }
