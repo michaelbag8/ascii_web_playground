@@ -64,31 +64,46 @@ func deposit(acc *Account, amount float64) {
 	acc.Balance += amount
 }
 
-//with Methods
-type Counter struct{
+// with Methods
+type Counter struct {
 	Count int
 }
 
 func (c *Counter) Addone() {
-	c.Count+=2
+	c.Count += 2
 }
-func (c Counter) Report() string{
+func (c Counter) Report() string {
 	return fmt.Sprintf("Counter is %d", c.Count)
 }
 
-type Person struct{
+type Person struct {
 	Name string
-	Age int
+	Age  int
 }
 
-func (p *Person) Birthday(){
+func (p *Person) Birthday() {
 	p.Age++
 }
 
-func (m Person) Message() string{
+func (m Person) Message() string {
 	return fmt.Sprintf("Happy Birthday %s, This Year You Are %d Years Old", m.Name, m.Age)
 }
 
+type Task struct {
+	Title string
+	Done  bool
+}
+
+func (t *Task) MarkDone() {
+	t.Done = true
+}
+
+func (t Task) Verify() string {
+	if t.Done {
+		return fmt.Sprintf("The task: %q has been marked done", t.Title)
+	}
+	return fmt.Sprintf("The task %q is not done yet.", t.Title)
+}
 func main() {
 	word := "hello world"
 	fmt.Println(Reverse(word))
@@ -121,7 +136,6 @@ func main() {
 	fmt.Println(price)
 
 	// account
-
 	acc := Account{
 		Owner:   "Michael Bag",
 		Balance: 4000.67,
@@ -141,19 +155,27 @@ func main() {
 	z.Addone()
 	fmt.Println(z.Report())
 
-
 	//Message method
 	person := Person{
 		Name: "Michael Bag",
-		Age: 440,
+		Age:  440,
 	}
-	fmt.Println("====2026 Birthday===")
+	fmt.Println("\033[31m====2026 Birthday===\033[0m")
 	person.Birthday()
 	fmt.Println(person.Message())
-	fmt.Println("====2027 Birthday===")
+	fmt.Println("\033[32m====2027 Birthday===\033[0m")
 	person.Birthday()
 	fmt.Println(person.Message())
-	fmt.Println("====2028 Birthday===")
+	fmt.Println("\033[33m====2028 Birthday===\033[0m")
 	person.Birthday()
 	fmt.Println(person.Message())
+
+	//Task MarkDone Methods
+	task := Task{
+		Title: "Learning Advanced Go",
+		Done:  false,
+	}
+	fmt.Println("\033[35m====Task Marked Done===\033[0m")
+	task.MarkDone()
+	fmt.Println(task.Verify())
 }
