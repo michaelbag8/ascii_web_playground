@@ -28,10 +28,24 @@ func reverseEachWord(str string) string{
 	return strings.Join(words, " ")
 }
 
+//pointers
+func swap(a,b *int) (*int, *int){
+	temp := a
+	a = b
+	b = temp
+	return a, b
+}
+
 func main() {
 	word := "hello world"
 	fmt.Println(Reverse(word))
 
 	fmt.Println("-----------")
 	fmt.Println(reverseEachWord(word))
+
+	a := 5
+	b := 3
+	c , d := swap(&a, &b)
+
+	fmt.Println(*c,*d)
 }
