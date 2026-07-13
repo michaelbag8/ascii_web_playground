@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -104,6 +105,40 @@ func (t Task) Verify() string {
 	}
 	return fmt.Sprintf("The task %q is not done yet.", t.Title)
 }
+
+//errors in Go
+func parseAge(input int) (int, error){
+	if input < 0{
+		return 0, errors.New("age can not be negative")
+	}
+	return input, nil
+}
+
+type ValidationError struct{
+	Field string
+	Reason string
+}
+//Because *ValidationError implements Error() string, it satisfies the 
+// error interface and can be returned wherever error 
+func (e *ValidationError) Error() string{
+	return fmt.Sprintf("validation failed on %q: %s", e.Field, e.Reason)
+}
+
+func ValidateUsername(name string) error{
+	if len(name) < 3{
+		return &ValidationError{Field: "username",Reason: "too short"}
+	}
+	return nil
+}
+
+//error task
+func divide(a, b float64) (float64, error){
+	if b == 0.0{
+		return 0.0, errors.New("not divisible by 0")
+	}
+	return a / b, nil
+}
+
 func main() {
 	word := "hello world"
 	fmt.Println(Reverse(word))
@@ -178,4 +213,18 @@ func main() {
 	fmt.Println("\033[35m====Task Marked Done===\033[0m")
 	task.MarkDone()
 	fmt.Println(task.Verify())
+
+	//custom error
+	fmt.Println("\033[36m====Custom Error Type===\033[0m")
+	err := ValidateUsername("ol")
+	if err!=nil{
+		fmt.Println(err)
+	}
+
+	fmt.Println("====Division====")
+	m, err := divide(2,0)
+	if err!=nil{
+		fmt.Println(err)
+	}
+	fmt.Println(m)
 }
